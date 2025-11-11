@@ -2,10 +2,12 @@ import axios from "axios";
 import * as cheerio from "cheerio";
 import { v1_base_url } from "../utils/base_v1.js";
 
-export default async function extractSchedule(date) {
+export default async function extractSchedule(date, tzOffset) {
   try {
+    tzOffset = tzOffset ?? -300;
+
     const resp = await axios.get(
-      `https://${v1_base_url}/ajax/schedule/list?tzOffset=-330&date=${date}`
+      `https://${v1_base_url}/ajax/schedule/list?tzOffset=${tzOffset}&date=${date}`
     );
     const $ = cheerio.load(resp.data.html);
     const results = [];
@@ -20,7 +22,7 @@ export default async function extractSchedule(date) {
       const japanese_title = $(element)
         .find(".film-name")
         .attr("data-jname")
-        .trim();
+        ?.trim();
       const releaseDate = date;
       const time = $(element).find(".time").text().trim();
       const episode_no = $(element)
